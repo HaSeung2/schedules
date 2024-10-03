@@ -1,6 +1,6 @@
 package com.sparta.scheduler.dto.response;
 
-import com.sparta.scheduler.user.User;
+import com.sparta.scheduler.entity.user.User;
 import lombok.Getter;
 import lombok.Setter;
 

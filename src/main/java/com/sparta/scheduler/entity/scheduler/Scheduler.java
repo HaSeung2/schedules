@@ -1,4 +1,4 @@
-package com.sparta.scheduler.scheduler;
+package com.sparta.scheduler.entity.scheduler;
 
 import com.sparta.scheduler.dto.request.SchedulerRequestDTO;
 import lombok.Getter;

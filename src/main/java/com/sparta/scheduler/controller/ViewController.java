@@ -34,6 +34,6 @@ public class ViewController {
 
     @GetMapping("/myScheduleView")
     public String doMyScheduleView() {
-        return "contentView/MyScheduleView";
+        return "contentView/myScheduleView";
     }
 }

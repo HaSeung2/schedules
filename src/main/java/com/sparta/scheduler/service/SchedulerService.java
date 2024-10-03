@@ -2,8 +2,9 @@ package com.sparta.scheduler.service;
 
 import com.sparta.scheduler.dto.request.SchedulerRequestDTO;
 import com.sparta.scheduler.dto.response.SchedulerResponseDTO;
+import com.sparta.scheduler.page.Page;
 import com.sparta.scheduler.repository.SchedulerRepository;
-import com.sparta.scheduler.scheduler.Scheduler;
+import com.sparta.scheduler.entity.scheduler.Scheduler;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -59,5 +60,9 @@ public class SchedulerService {
 
         public List<SchedulerResponseDTO> getMySchedule(Long user_id) {
                 return schedulerRepository.selectByMySchedule(user_id).stream().map(SchedulerResponseDTO :: new).toList();
+        }
+
+        public List<SchedulerResponseDTO> getSchedulesPaging(Page page) {
+                return schedulerRepository.selectAllByPaging(page).stream().map(SchedulerResponseDTO::new).toList();
         }
 }

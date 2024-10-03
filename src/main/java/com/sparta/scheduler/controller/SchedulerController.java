@@ -2,6 +2,7 @@ package com.sparta.scheduler.controller;
 
 import com.sparta.scheduler.dto.request.SchedulerRequestDTO;
 import com.sparta.scheduler.dto.response.SchedulerResponseDTO;
+import com.sparta.scheduler.page.Page;
 import com.sparta.scheduler.service.SchedulerService;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,11 @@ public class SchedulerController {
         @GetMapping("/scheduler")
         public List<SchedulerResponseDTO> getAllSchedules(){
             return schedulerService.getAllSchedules();
+        }
+
+        @GetMapping("/scheduler/paging")
+        public List<SchedulerResponseDTO> getSchedulesPaging(@RequestBody Page page){
+            return schedulerService.getSchedulesPaging(page);
         }
 
         @GetMapping("/scheduler/{schedule_id}")

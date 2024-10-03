@@ -1,6 +1,7 @@
-function setDatePicker() {
+function setDatePicker(start_date,end_date) {
     $('input[name="daterange"]').daterangepicker({
-        "startDate" : getToday(),
+        "startDate" : start_date,
+        "endDate" : end_date,
         opens: 'center',
         locale: {
             format: 'YYYY-MM-DD',

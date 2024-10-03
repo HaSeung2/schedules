@@ -1,6 +1,6 @@
 package com.sparta.scheduler.repository;
 
-import com.sparta.scheduler.user.User;
+import com.sparta.scheduler.entity.user.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;

@@ -1,6 +1,8 @@
 package com.sparta.scheduler.repository;
 
-import com.sparta.scheduler.scheduler.Scheduler;
+import com.sparta.scheduler.dto.response.SchedulerResponseDTO;
+import com.sparta.scheduler.entity.scheduler.Scheduler;
+import com.sparta.scheduler.page.Page;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -130,5 +132,14 @@ public class SchedulerRepository {
                 return new Scheduler(rs);
             }
         }, user_id);
+    }
+
+    public List<Scheduler> selectAllByPaging(Page page) {
+        String query = "select * from schedules order by schedule_id desc limit ?,? ";
+        return jdbcTemplate.query(query, new RowMapper<Scheduler>(){
+            public Scheduler mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new Scheduler(rs);
+            }
+        },page.getPageNum(),page.getAmount());
     }
 }

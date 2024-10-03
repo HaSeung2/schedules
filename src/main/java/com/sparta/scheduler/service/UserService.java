@@ -3,7 +3,7 @@ package com.sparta.scheduler.service;
 import com.sparta.scheduler.dto.request.UserRequestDTO;
 import com.sparta.scheduler.dto.response.UserResponseDTO;
 import com.sparta.scheduler.repository.UserRepository;
-import com.sparta.scheduler.user.User;
+import com.sparta.scheduler.entity.user.User;
 import org.springframework.stereotype.Service;
 
 @Service

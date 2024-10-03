@@ -20,7 +20,6 @@
     </div>
 </div>
 
-
 <script>
     let schedule_id = $('#schedule_id').val();
 
@@ -42,7 +41,7 @@
                 let end_date = response.end_date;
                 let modification_date = response.modification_date;
                 modifyViewAddHTML(schedule_id,username,title,content,start_date,end_date,modification_date);
-                setDatePicker();
+                setDatePicker(start_date,end_date);
             }
         });
     }
