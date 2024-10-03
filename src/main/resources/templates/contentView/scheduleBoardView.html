@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout = "http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/defaultLayout}"
+      layout:fragment="content">
+
+    <div id = input-content>
+        <input type="text" id="input" th:value="${schedule_id}" value="기본값" style="display: none;">
+        <div id="container">
+        </div>
+    </div>
+
+<script>
+
+    $(document).ready(function (){
+        getSchedule();
+    });
+
+    function getSchedule(){
+        let schedule_id = $('#input').val();
+        $('#container').empty();
+        $.ajax({
+            type : 'GET',
+            url  : `/scheduler/${schedule_id}`,
+            success : function(response){
+                let schedule_id = response.schedule_id;
+                let username = response.username;
+                let title = response.title
+                let content =  response.content;
+                let start_date = response.start_date;
+                let end_date = response.end_date;
+                let modification_date = response.modification_date;
+                boardViewAddHTML(schedule_id,username,title,content,start_date,end_date,modification_date);
+            }
+        });
+    }
+    function boardViewAddHTML(schedule_id,username,title,content,start_date,end_date,modification_date){
+        let tempHTML = `
+                    제목 <br>
+                    <input id="title" value="${title}" type="text" readonly><br>
+                    작성자<br>
+                    <input id="username" readonly type="text" value="${username}"><br>
+                    시작일<br>
+                    <input value="${start_date}" readonly>
+                    종료일 <br>
+                    <input value="${end_date}" readonly> <br>
+                    할일 <br>
+                    <textarea  id = "content" readonly>${content}</textarea>
+                <button id = "modifyBtn" onclick ="modifySchedule(${schedule_id})">수정</button>
+                <button id = "deleteBtn" onclick="deleteSchedule(${schedule_id})">삭제</button>
+                 `;
+        $('#container').append(tempHTML);
+    }
+
+    function modifySchedule(schedule_id){
+        location.href=`/view/modifyView/${schedule_id}`
+    }
+
+    function deleteSchedule(schedule_id){
+        location.href=`/view/deleteView/${schedule_id}`
+    }
+</script>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout = "http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/defaultLayout}"
+      layout:fragment="content">
+
+<div id = input-content>
+    <div>
+    이름 <br>
+    <input id="username" type="text"><br>
+    email<br>
+    <input type="email" id="user_email" placeholder="example@naver.com">
+    password <br>
+    <input id = "password" type="password"><br>
+    제목 <br>
+    <input id="title" type="text"><br>
+    일정 기간 <br>
+    <input id="date" type = "text" name = "daterange" readonly> <br>
+    일정 <br>
+    <textarea placeholder="일정을 입력해주세요" id = "content" cols="30" rows="10"></textarea>
+    <button type ="button" onclick="writeSchedule()"> 등록하기 </button>
+    </div>
+  </div>
+
+<script>
+
+    $(document).ready(function (){
+        setDatePicker();
+    });
+
+  function writeSchedule(){
+     let username = $('#username').val();
+     let user_email = $('#user_email').val();
+     let password = $('#password').val();
+     let title = $('#title').val();
+     let content = $('#content').val();
+     let date = $('#date').val();
+     let start_date = date.substring(0,10);
+     let end_date = date.substring(13);
+
+     if(!inputCheck(username,password,title,content)) return;
+     if(emailChecked(user_email) === 0){
+         alert("이메일을 입력해주세요");
+         return;
+     }
+      if(emailChecked(user_email) === 1){
+          alert("이메일 형식에 맞게 입력해주세요");
+          return;
+      }
+
+     let data = {
+          'user_email':user_email
+      };
+
+      $.ajax({
+          type : 'POST',
+          url : "/user/checking",
+          dataType : 'json',
+          data : data,
+          success : function (response){
+               let user_id = response.user_id;
+               if(user_id !== 0){
+
+                   let data = {
+                       'user_id' : user_id,
+                       'username': username,
+                       'password': password,
+                       'title'   : title,
+                       'content': content,
+                       'start_date' : start_date,
+                       'end_date' : end_date
+                   };
+
+                   $.ajax({
+                       type : 'POST',
+                       url : '/scheduler',
+                       contentType : 'application/json',
+                       data : JSON.stringify(data),
+                       success : function(response){
+                           alert('일정 등록 완료 ');
+                           location.href = '/';
+                       }
+                   });
+               }
+               else{
+
+                   let data = {
+                       'user_email': user_email,
+                       'username': username
+                   };
+
+                   $.ajax({
+                       type: 'POST',
+                       url: '/user/create',
+                       data: JSON.stringify(data),
+                       contentType : 'application/json',
+                       dataType: 'json',
+                       success: function (response) {
+                           let user_id = response.user_id;
+                           let data = {
+                               'user_id': user_id,
+                               'username': username,
+                               'password': password,
+                               'title': title,
+                               'content': content,
+                               'start_date': start_date,
+                               'end_date': end_date
+                           };
+                           $.ajax({
+                               type: 'POST',
+                               url: '/scheduler',
+                               contentType: 'application/json',
+                               data: JSON.stringify(data),
+                               success: function (response) {
+                                   alert('일정 등록 완료 ');
+                                   location.href = '/';
+                               }
+                           });
+                       }
+                   });
+               }
+           }
+      });
+  }
+
+  function inputCheck(name, password, title, content) {
+      if (name == '') {
+          alert("이름을 입력해주세요");
+          return false;
+      }
+      if (password == '') {
+          alert("비밀번호를 입력해주세요");
+          return false;
+      }
+      if (title == '') {
+          alert("제목을 입력해주세요");
+          return false;
+      }
+      if (content == '') {
+          alert("할일을 입력해주세요");
+          return false;
+      }
+      return true;
+  }
+</script>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout = "http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/defaultLayout}"
+      layout:fragment="content">
+
+<div>
+    <div id = input-content>
+        <div style="width: 100%;">
+            비밀번호를 입력해주세요 !<br>
+            <input id = "password" type="password"><br>
+            <input type="text" th:value="${schedule_id}" id = "schedule_id" hidden="hidden">
+            <button type ="button" onclick="checking()"> 확인 </button>
+        </div>
+    </div>
+    <div id="container">
+
+    </div>
+</div>
+
+
+<script>
+    let schedule_id = $('#schedule_id').val();
+
+    $(document).ready(function (){
+        getSchedule();
+    });
+
+    function getSchedule(){
+        $('#container').empty();
+        $.ajax({
+            type : 'GET',
+            url  : `/scheduler/${schedule_id}`,
+            success : function(response){
+                let schedule_id = response.schedule_id;
+                let username = response.username;
+                let title = response.title
+                let content =  response.content;
+                let start_date = response.start_date;
+                let end_date = response.end_date;
+                let modification_date = response.modification_date;
+                modifyViewAddHTML(schedule_id,username,title,content,start_date,end_date,modification_date);
+                setDatePicker();
+            }
+        });
+    }
+
+    function modifyViewAddHTML(schedule_id,username,title,content,start_date,end_date,modification_date){
+        let tempHTML = `
+              <div id = "appendContainer" class ="hidden">
+              <div>
+                 제목 <br>
+                <input id="title" value="${title}" type="text"><br>
+                작성자<br>
+                <input id="username" type="text" value="${username}"><br>
+                시작일 종료일 <br>
+                <input id="date" type = "text" name = "daterange" readonly value="${start_date} - ${end_date}"> <br>
+                할일 <br>
+                <textarea  id = "content">${content}</textarea>
+
+                <form id = "form" action = "/view/scheduleBoardView" method="get">
+                <input name = "schedule_id" value="${schedule_id}" hidden="hidden">
+                <button  type="submit" id = "cancleBtn">취소</button>
+                </form>
+                <button id = "modifyOkBtn" onclick ="modifySchedule()">수정 완료</button>
+              </div>
+                 `;
+        $('#container').append(tempHTML);
+    }
+
+    function checking(){
+        let password = $('#password').val();
+        let param = `schedule_id=${schedule_id}&password=`+password;
+        if(password === ''){
+            alert("비밀번호를 입력해주세요.");
+            return;
+        }
+        $.ajax({
+           type : 'POST',
+           url : '/passwordCheck',
+           data : param,
+           dataType : 'json',
+           success : function(data){
+               $('#input-content').attr('class' ,"hidden");
+               $('#appendContainer').removeAttr('class');
+           },
+           error : function(){
+               alert("비밀번호를 확인해주세요");
+           }
+        });
+    }
+
+    function modifySchedule(){
+        let username = $('#username').val();
+        let content = $('#content').val();
+        let title = $('#title').val();
+        let date = $('#date').val();
+        let start_date = date.substring(0,10);
+        let end_date = date.substring(13);
+
+        let data = {
+            'username':username,
+            'title':title,
+            'content':content ,
+            'start_date':start_date,
+            'end_date':end_date
+        };
+        if(username === ''){
+            alert("이름을 제대로 입력해주세요");
+            return;
+        }
+        if(content === ''){
+            alert("일정을 제대로 입력해주세요");
+            return;
+        }
+        $.ajax({
+           type : 'PUT',
+           url : `/scheduler/${schedule_id}`,
+           contentType : 'application/json',
+           data : JSON.stringify(data),
+           success : function(){
+               alert('수정 완료!');
+               $('#form').submit();
+           },
+           error : function (){
+               alert("업데이트 오류 발생");
+           }
+        });
+    }
+</script>
+</html>

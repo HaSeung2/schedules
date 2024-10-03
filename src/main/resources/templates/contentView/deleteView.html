@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout = "http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/defaultLayout}"
+      layout:fragment="content">
+
+<div id = "input-content">
+    <div style="width: 40%;">
+        비밀번호를 입력해주세요 !<br>
+        <input id = "password" type="password"><br>
+        <input type="text" th:value="${schedule_id}" id = "schedule_id" hidden="hidden">
+        <button type ="button" onclick="deleteSchedule()"> 삭제하기 </button>
+    </div>
+</div>
+
+<script>
+
+    function deleteSchedule(){
+      let schedule_id = $('#schedule_id').val();
+      let password = $('#password').val();
+      let param = `schedule_id=${schedule_id}&password=`+password;
+      if(password === ''){
+        alert("비밀번호를 입력해주세요");
+        return;
+      }
+      if(confirm("게시글을 정말 삭제하시겠습니까 ?")){
+          $.ajax({
+            type : 'POST',
+            url : '/passwordCheck',
+            dataType : 'json',
+            contentType : 'application/x-www-form-urlencoded',
+            data : param,
+            success : function(data){
+                $.ajax({
+                  type : 'DELETE',
+                  url : `/scheduler/${schedule_id}`,
+                  success : function(){
+                    alert("삭제 완료 !");
+                    location.href = "/";
+                  }
+                });
+            },
+            error : function(data,error){
+              alert('비밀번호를 확인해주세요');
+            }
+          });
+       }
+    }
+</script>
+</html>

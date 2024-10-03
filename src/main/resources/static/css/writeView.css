@@ -1,0 +1,32 @@
+#input-content,
+#appendContainer{
+    max-width: 30%;
+    margin-left: 35%;
+}
+
+#content,
+#input-content > div > button,
+#input-content > div > input,
+#appendContainer > div > input,
+#appendContainer > div > button,
+#appendContainer > div > form > button,
+#appendContainer > div > textarea{
+    width: 100%;
+}
+
+#input-content > div,
+#appendContainer > div{
+    top: 50%;
+    left: 50%;
+}
+
+#appendContainer > div > input,
+#appendContainer > div > textarea,
+#input-content > div > input,
+#input-content > div > textarea{
+    text-align: center;
+}
+
+#appendContainer > div{
+    width: 100%;
+}

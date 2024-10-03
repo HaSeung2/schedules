@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout = "http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/defaultLayout}"
+      layout:fragment="content">
+
+
+<body>
+<div id = "emailInput">
+글을 작성하실때 기입하신 이메일을 입력해주세요<br>
+<input type="email" id="user_email" placeholder="example@naver.com">
+<button onclick="emailCheck()">확인</button>
+</div>
+
+
+<!-- board list area -->
+<div id="board-list" style="display: none;">
+    <div class="container">
+        <table class="board-table">
+            <thead>
+            <tr>
+                <th scope="col" class="th-num">번호</th>
+                <th scope="col" class="th-title">제목</th>
+                <th scope="col" class="">작성자</th>
+                <th scope="col" class="th-date">최근 수정일</th>
+            </tr>
+            </thead>
+            <tbody id=tbody-box>
+            <!-- 게시판 글 등록 테이블 -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+<script>
+    function emailCheck(){
+        let user_email = $('#user_email').val();
+        let number = emailChecked(user_email);
+
+        if(number === 0){
+            alert("이메일을 입력해주세요");
+            return;
+        }
+        if(number === 1){
+            alert("이메일 형식에 맞게 입력해주세요");
+            return;
+        }
+
+        let data = {
+            'user_email':user_email
+        };
+
+        $.ajax({
+           type : 'POST',
+           url : "/user/checking",
+           dataType : 'json',
+           data : data,
+           success : function (response){
+               $('#emailInput').empty();
+               $('#board-list').removeAttr('style');
+
+               let user_id = response.user_id;
+               if(user_id !== 0){
+                   $.ajax({
+                      type : 'GET',
+                      url : `/scheduler/mySchedule/${user_id}`,
+                      success : function (response){
+                          for(let i = 0; i < response.length; i++){
+                              let schedules = response[i];
+                              let schedule_id = schedules['schedule_id'];
+                              let username = schedules['username'];
+                              let title = schedules['title'];
+                              let modification_date = schedules['modification_date'];
+                              indexAndMyScheduleViewAddHTML(schedule_id,username,title,modification_date);
+                          }
+                      }
+                   });
+               }
+               else{
+                   alert("작성하신 글이 없습니다");
+                   location.href = '/';
+               }
+           }
+        });
+    }
+</script>
+</html>
