@@ -1,6 +1,5 @@
 package com.sparta.scheduler.repository;
 
-import com.sparta.scheduler.dto.response.SchedulerResponseDTO;
 import com.sparta.scheduler.entity.scheduler.Scheduler;
 import com.sparta.scheduler.page.Page;
 import org.springframework.jdbc.core.JdbcTemplate;

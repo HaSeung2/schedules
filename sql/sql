@@ -1,0 +1,21 @@
+create table schedules(
+        user_id bigint,
+        constraint schedules_fk_user foreign key (user_id) references user(user_id) on delete cascade,
+        schedule_id bigint not null auto_increment primary key comment '일정 번호',
+        username varchar(30) not null comment '작성자 이름',
+        password varchar(30) not null comment '비밀 번호',
+        title varchar(30) not null comment '제목',
+        content text not null comment '내용',
+        start_date date comment '시작일',
+        end_date date comment '종료일',
+        creation_date timestamp default current_timestamp comment '작성일',
+        modification_date timestamp default current_timestamp on update current_timestamp comment '수정일'
+    );
+
+create table user(
+        user_id bigint not null auto_increment primary key,
+        user_email varchar(30) not null unique comment '작성자 이메일',
+        username varchar(30) not null comment '작성자 이름',
+        creation_date timestamp default current_timestamp comment '작성일',
+        modification_date timestamp default current_timestamp on update current_timestamp comment '수정일'
+    );
