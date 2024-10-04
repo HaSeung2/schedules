@@ -25,12 +25,10 @@ public class Page {
 
     private int pagingCount;
 
-    private List<SchedulerResponseDTO> schedulerResponseDTO;
 
-    public Page(int total, int pageNum, int size, int pagingCount, List<SchedulerResponseDTO> schedulerResponseDTO) {
+    public Page(int total, int pageNum, int size, int pagingCount) {
         this.total = total;
         this.pageNum = pageNum;
-        this.schedulerResponseDTO = schedulerResponseDTO;
         this.pagingCount = pagingCount;
 
         if(total == 0){

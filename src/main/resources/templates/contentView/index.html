@@ -239,13 +239,13 @@
             data : param,
             dataType : 'json',
             success : function(response){
-                if(response.length < 1){
+                if(response <  1){
                     alert("검색된 결과가 없습니다.");
                     return;
                 }
                 let data = {
                     'pageNum' : pageNum,
-                    'total':response.length
+                    'total': response
                 };
                 $.ajax({
                     type : 'GET',
