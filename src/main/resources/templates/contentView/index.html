@@ -156,6 +156,7 @@
             data: pageNum,
             success : function (response){
                 $('#paginationUl').empty();
+                console.log(response.total)
                 let startPage = response.startPage;
                 let pageNum = response.pageNum;
                 let totalPages = response.totalPages;

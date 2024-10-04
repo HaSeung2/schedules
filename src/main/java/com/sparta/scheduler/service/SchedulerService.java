@@ -48,11 +48,13 @@ public class SchedulerService {
 
         public List<SchedulerResponseDTO> getSchedulesPaging(int pageNum) {
                 if(pageNum != 1) pageNum *= 10;
+                if(pageNum == 1) pageNum = 0;
                 return schedulerRepository.selectAllByPaging(pageNum).stream().map(SchedulerResponseDTO::new).toList();
         }
 
         public List<SchedulerResponseDTO> getScheduleBySearch(String username, String date,int pageNum) {
                 if(pageNum != 1) pageNum *= 10;
+                if(pageNum == 1) pageNum = 0;
                 if(username.isEmpty() && !date.isEmpty()) {
                         return schedulerRepository.selectSearchModifyDate(date,pageNum).stream().map(SchedulerResponseDTO :: new).toList();
                 }
@@ -78,6 +80,7 @@ public class SchedulerService {
 
         public List<SchedulerResponseDTO> getMySchedule(Long user_id, int pageNum) {
                 if(pageNum != 1) pageNum *= 10;
+                if(pageNum == 1) pageNum = 0;
                 return schedulerRepository.selectByMySchedule(user_id,pageNum).stream().map(SchedulerResponseDTO :: new).toList();
         }
 
