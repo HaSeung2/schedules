@@ -1,44 +1,61 @@
 package com.sparta.scheduler.page;
 
 
+import com.sparta.scheduler.dto.response.SchedulerResponseDTO;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class Page {
     /* 현재 페이지 */
     private int pageNum;
 
-    /* 한 페이지 당 보여질 게시물 갯수 */
-    private int amount;
-    
-    public Page(){
-        this.pageNum = 1;
-        this.amount = 10;
-    }
-    
-    // 특정 페이지의 게시글 시작 번호, 게시글 시작 행 번호
-    public int getPageStart(){
-        return (this.pageNum - 1) * amount;
-    }
-    
-    public void setPageNum(int pageNum){
-        if(pageNum <= 0){
-            this.pageNum = 1;
+    private int total;
+
+    private int totalPages;
+
+    private int startPage;
+
+    private int endPage;
+
+    private int pagingCount;
+
+    private List<SchedulerResponseDTO> schedulerResponseDTO;
+
+    public Page(int total, int pageNum, int size, int pagingCount, List<SchedulerResponseDTO> schedulerResponseDTO) {
+        this.total = total;
+        this.pageNum = pageNum;
+        this.schedulerResponseDTO = schedulerResponseDTO;
+        this.pagingCount = pagingCount;
+
+        if(total == 0){
+            totalPages = 0;
+            startPage = 0;
+            endPage = 0;
         }
         else{
-            this.pageNum = pageNum;
+            totalPages = total / size;
+            if(total % size > 0){
+                totalPages++;
+            }
+
+            startPage = pageNum / pagingCount * pagingCount + 1;
+
+            if(pageNum % pagingCount == 0){
+                startPage -= pagingCount;
+            }
+
+            endPage = startPage + pagingCount - 1 ;
+
+            if(endPage > totalPages){
+                endPage = totalPages;
+            }
         }
     }
-    
-    public void setAmount(int pageCount){
-        int cnt = this.amount;
-        if(pageCount != cnt){
-            this.amount = cnt;
-        }
-        else{
-            this.amount = pageCount;
-        }
-    }
+
 }

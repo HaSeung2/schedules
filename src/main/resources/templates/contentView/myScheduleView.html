@@ -34,8 +34,16 @@
     </div>
 </div>
 
+<div class="container">
+    <ul class="pagination" id="paginationUl">
+
+    </ul>
+</div>
+
 </body>
 <script>
+
+
     function emailCheck(){
         let user_email = $('#user_email').val();
         let number = emailChecked(user_email);
@@ -66,16 +74,10 @@
                if(user_id !== 0){
                    $.ajax({
                       type : 'GET',
-                      url : `/scheduler/mySchedule/${user_id}`,
+                      url : `/scheduler/myScheduleCnt/${user_id}`,
                       success : function (response){
-                          for(let i = 0; i < response.length; i++){
-                              let schedules = response[i];
-                              let schedule_id = schedules['schedule_id'];
-                              let username = schedules['username'];
-                              let title = schedules['title'];
-                              let modification_date = schedules['modification_date'];
-                              indexAndMyScheduleViewAddHTML(schedule_id,username,title,modification_date);
-                          }
+                          paging(1,response,user_id);
+                          console.log(response);
                       }
                    });
                }
@@ -85,6 +87,89 @@
                }
            }
         });
+    }
+
+    function paging(pageNum, total, user_id) {
+        let data = {
+            'pageNum': pageNum,
+            'total': total
+        };
+        $.ajax({
+            type: 'GET',
+            url: '/scheduler/page',
+            dataType: 'json',
+            data: data,
+            success: function (response) {
+                $('#paginationUl').empty();
+                console.log(response.startPage);
+                console.log(response.pageNum);
+                console.log(response.totalPages);
+                console.log(response.endPage);
+                console.log(response.total);
+                let startPage = response.startPage;
+                let pageNum = response.pageNum;
+                let totalPages = response.totalPages;
+                let endPage = response.endPage;
+                let total = response.total;
+                myScheduleViewAddBtnHtml(startPage, pageNum, totalPages, endPage, total,user_id);
+
+                let param = {
+                    'user_id' : user_id,
+                    'pageNum' : pageNum
+                };
+                $.ajax({
+                    type : 'GET',
+                    url : '/scheduler/mySchedule',
+                    dataType : 'json',
+                    data : param,
+                    success : function (response){
+                        $('#tbody-box').empty();
+                        for(let i = 0; i < response.length; i++){
+                            let schedules = response[i];
+                            let schedule_id = schedules['schedule_id'];
+                            let username = schedules['username'];
+                            let title = schedules['title'];
+                            let modification_date = schedules['modification_date'];
+                            indexAndMyScheduleViewAddHTML(schedule_id,username,title,modification_date);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    function myScheduleViewAddBtnHtml(startPage,pageNum,totalPages,endPage,total,user_id){
+        let tempHtml = `
+        <li class="page-item" id="prevLi">
+            <a onclick="prevBtn(${startPage},${total},${user_id})" class="page-link" aria-controls="dataTable" data-dt-idx="0" tabIndex="0">Prev</a>
+        </li>
+        <li class="page-item" id = "numBtn">
+        </li>
+        <li class="page-item">
+            <a class="page-link" onclick="nextBtn(${startPage},${totalPages},${endPage},${total},${user_id})"  aria-controls="dataTable" data-dt-idx="11" tabIndex="0">Next</a>
+        </li>
+        `;
+        $('#paginationUl').append(tempHtml);
+        for(let i = startPage; i <= endPage; i++){
+            let temp = `
+                <button value = ${i} onclick="oneBtn(${i},${total},${user_id})" th:if="${i} == ${pageNum}" 'active'>${i}</button>
+            `;
+            $('#numBtn').append(temp);
+        }
+    }
+
+    function prevBtn(startPage,total,user_id){
+        if(startPage < 11) return;
+        paging(startPage - 10,total,user_id);
+    }
+
+    function nextBtn(startPage,totalPages,endPage,total,user_id){
+        if(endPage >= totalPages) return;
+        paging(startPage + 10,total,user_id);
+    }
+
+    function oneBtn(num,total,user_id){
+        paging(num,total,user_id);
     }
 </script>
 </html>

@@ -379,3 +379,11 @@ a {
     padding: 0;
     border-radius: 50px;
 }
+
+.pagination>li {
+    display: inline-table; !important;
+}
+
+.pagination > li > button:active{
+        color: red;
+}

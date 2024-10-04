@@ -2,7 +2,6 @@ package com.sparta.scheduler.service;
 
 import com.sparta.scheduler.dto.request.SchedulerRequestDTO;
 import com.sparta.scheduler.dto.response.SchedulerResponseDTO;
-import com.sparta.scheduler.page.Page;
 import com.sparta.scheduler.repository.SchedulerRepository;
 import com.sparta.scheduler.entity.scheduler.Scheduler;
 import org.springframework.stereotype.Service;
@@ -42,27 +41,47 @@ public class SchedulerService {
                 return schedulerRepository.update(schedule_id,updatedScheduler);
         }
 
-        public List<SchedulerResponseDTO> getScheduleBySearch(String username, String date) {
-                if(username.isEmpty() && !date.isEmpty()) {
-                        return schedulerRepository.selectSearchModifyDate(date).stream().map(SchedulerResponseDTO :: new).toList();
-                }
-                else if(!username.isEmpty() && date.isEmpty()) {
-                        return schedulerRepository.selectSearchAuthor(username).stream().map(SchedulerResponseDTO :: new).toList();
-                }
-                else{
-                        return schedulerRepository.selectSearchAll(username,date).stream().map(SchedulerResponseDTO :: new).toList();
-                }
-        }
-
         public List<SchedulerResponseDTO> getAllSchedules() {
                 return schedulerRepository.selectAll().stream().map(SchedulerResponseDTO :: new).toList();
         }
 
-        public List<SchedulerResponseDTO> getMySchedule(Long user_id) {
-                return schedulerRepository.selectByMySchedule(user_id).stream().map(SchedulerResponseDTO :: new).toList();
+
+        public List<SchedulerResponseDTO> getSchedulesPaging(int pageNum) {
+                if(pageNum != 1) pageNum *= 10;
+                return schedulerRepository.selectAllByPaging(pageNum).stream().map(SchedulerResponseDTO::new).toList();
         }
 
-        public List<SchedulerResponseDTO> getSchedulesPaging(Page page) {
-                return schedulerRepository.selectAllByPaging(page).stream().map(SchedulerResponseDTO::new).toList();
+        public List<SchedulerResponseDTO> getScheduleBySearch(String username, String date,int pageNum) {
+                if(pageNum != 1) pageNum *= 10;
+                if(username.isEmpty() && !date.isEmpty()) {
+                        return schedulerRepository.selectSearchModifyDate(date,pageNum).stream().map(SchedulerResponseDTO :: new).toList();
+                }
+                else if(!username.isEmpty() && date.isEmpty()) {
+                        return schedulerRepository.selectSearchAuthor(username,pageNum).stream().map(SchedulerResponseDTO :: new).toList();
+                }
+                else{
+                        return schedulerRepository.selectSearchAll(username,date,pageNum).stream().map(SchedulerResponseDTO :: new).toList();
+                }
+        }
+
+        public List<SchedulerResponseDTO> getScheduleBySearchLength(String username, String date) {
+                if(username.isEmpty() && !date.isEmpty()) {
+                        return schedulerRepository.selectSearchModifyDateLength(date).stream().map(SchedulerResponseDTO :: new).toList();
+                }
+                else if(!username.isEmpty() && date.isEmpty()) {
+                        return schedulerRepository.selectSearchAuthorLength(username).stream().map(SchedulerResponseDTO :: new).toList();
+                }
+                else{
+                        return schedulerRepository.selectSearchAllLength(username,date).stream().map(SchedulerResponseDTO :: new).toList();
+                }
+        }
+
+        public List<SchedulerResponseDTO> getMySchedule(Long user_id, int pageNum) {
+                if(pageNum != 1) pageNum *= 10;
+                return schedulerRepository.selectByMySchedule(user_id,pageNum).stream().map(SchedulerResponseDTO :: new).toList();
+        }
+
+        public int getMyScheduleCnt(Long user_id) {
+                return schedulerRepository.selectByMyScheduleCnt(user_id).size();
         }
 }

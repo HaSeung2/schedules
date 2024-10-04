@@ -36,3 +36,11 @@ function emailChecked(user_email){
         return 1;
     }
 }
+
+function writeView() {
+    location.href = "/view/writeView";
+}
+
+function mySchedule(){
+    location.href = "/view/myScheduleView";
+}

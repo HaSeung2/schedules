@@ -22,14 +22,24 @@ public class SchedulerController {
              return schedulerService.createSchedule(schedulerRequestDTO);
         }
 
-        @GetMapping("/scheduler")
-        public List<SchedulerResponseDTO> getAllSchedules(){
-            return schedulerService.getAllSchedules();
-        }
+//        @GetMapping("/scheduler")
+//        public List<SchedulerResponseDTO> getAllSchedules(){
+//            return schedulerService.getAllSchedules();
+//        }
 
         @GetMapping("/scheduler/paging")
-        public List<SchedulerResponseDTO> getSchedulesPaging(@RequestBody Page page){
-            return schedulerService.getSchedulesPaging(page);
+        public List<SchedulerResponseDTO> getSchedulesPaging(@RequestParam(required = false, defaultValue = "1") int pageNum){
+            return schedulerService.getSchedulesPaging(pageNum);
+        }
+
+        @GetMapping("/scheduler/page")
+        public Page getPage(@RequestParam(required = false, defaultValue = "1") int pageNum, @RequestParam(required = false, defaultValue = "0") int total){
+            List <SchedulerResponseDTO> schedules = schedulerService.getAllSchedules();
+            if(total != 0){
+                return new Page(total, pageNum,10,10,schedules);
+            }
+            total = schedules.size();
+            return new Page(total, pageNum,10,10,schedules);
         }
 
         @GetMapping("/scheduler/{schedule_id}")
@@ -53,13 +63,23 @@ public class SchedulerController {
         }
 
         @GetMapping("/scheduler/search")
-        public List<SchedulerResponseDTO> searchSchedule(@RequestParam("username") String username, @RequestParam("date") String date){
-            return schedulerService.getScheduleBySearch(username,date);
+        public List<SchedulerResponseDTO> searchSchedule(@RequestParam("username") String username, @RequestParam("date") String date,@RequestParam(required = false, defaultValue = "1") int pageNum){
+            return schedulerService.getScheduleBySearch(username,date,pageNum);
         }
 
-        @GetMapping("/scheduler/mySchedule/{user_id}")
-        public List<SchedulerResponseDTO> getMySchedule(@PathVariable("user_id") Long user_id){
-            return schedulerService.getMySchedule(user_id);
+        @GetMapping("/scheduler/searchByLength")
+        public List<SchedulerResponseDTO> searchScheduleLength(@RequestParam("username") String username, @RequestParam("date") String date){
+            return schedulerService.getScheduleBySearchLength(username,date);
         }
 
+
+        @GetMapping("/scheduler/mySchedule")
+        public List<SchedulerResponseDTO> getMySchedule(Long user_id, @RequestParam(required = false, defaultValue = "1")int pageNum){
+            return schedulerService.getMySchedule(user_id,pageNum);
+        }
+
+        @GetMapping("/scheduler/myScheduleCnt/{user_id}")
+        public int getMyScheduleCnt(@PathVariable("user_id") Long user_id){
+            return schedulerService.getMyScheduleCnt(user_id);
+        }
 }

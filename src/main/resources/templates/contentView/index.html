@@ -73,7 +73,7 @@
                             <!-- 시작시 기본 날짜 설정은 value를 이용 -->
                             <input style="background-color: white" type="text" id="datePicker" class="form-control" placeholder="수정일로 검색하시려면 수정일을 입력하세요" value="" readonly>
                             <input  type="search" id="targetUsername" placeholder="검색하실 작성자명을 입력해주세요." value="">
-                            <button type="button" class="btn btn-dark" onclick="search()">검색</button>
+                            <button type="button" class="btn btn-dark" onclick="search(1)">검색</button>
                         </div>
                     </form>
                 </div>
@@ -99,9 +99,21 @@
         </div>
     </section>
 </div>
+
+<div class="container">
+    <ul class="pagination" id="paginationUl">
+
+    </ul>
+</div>
 </html>
 
+
 <script>
+
+
+    $(document).ready(function () {
+        getPaging(1,0);
+    });
 
     $(function() {
         $('#datePicker').datepicker({
@@ -132,23 +144,70 @@
         });
     });
 
-    function writeView() {
-        location.href = "/view/writeView";
+    function getPaging(num,total){
+        let pageNum = {
+            'pageNum': num,
+            'total' : total
+        };
+        $.ajax({
+            type : 'GET',
+            url : '/scheduler/page',
+            dataType : 'json',
+            data: pageNum,
+            success : function (response){
+                $('#paginationUl').empty();
+                let startPage = response.startPage;
+                let pageNum = response.pageNum;
+                let totalPages = response.totalPages;
+                let endPage = response.endPage;
+                addBtnHtml(startPage,pageNum,totalPages,endPage);
+                getSchedules(pageNum);
+            }
+        });
     }
 
-    function mySchedule(){
-        location.href = "/view/myScheduleView";
+    function addBtnHtml(startPage,pageNum,totalPages,endPage) {
+        let tempHtml = `
+        <li class="page-item" id="prevLi">
+            <a onclick="prevBtn(${startPage},${endPage})" class="page-link" aria-controls="dataTable" data-dt-idx="0" tabIndex="0">Prev</a>
+        </li>
+        <li class="page-item" id = "numBtn">
+        </li>
+        <li class="page-item">
+            <a class="page-link" onclick="nextBtn(${startPage},${totalPages},${endPage})"  aria-controls="dataTable" data-dt-idx="11" tabIndex="0">Next</a>
+        </li>
+        `;
+        $('#paginationUl').append(tempHtml);
+        for(let i = startPage; i <= endPage; i++){
+            let temp = `
+                <button value = ${i} onclick="oneBtn(${i})" th:if="${i} == ${pageNum}" 'active'>${i}</button>
+            `;
+            $('#numBtn').append(temp);
+        }
     }
 
-    $(document).ready(function () {
-        getSchedules();
-    });
+   function prevBtn(startPage){
+        if(startPage < 11) return;
+        getPaging(startPage - 10);
+    }
 
-    function getSchedules() {
+    function nextBtn(startPage,totalPages,endPage){
+        if(endPage >= totalPages) return;
+        getPaging(startPage + 10);
+    }
+
+    function oneBtn(num){
+        getPaging(num);
+    }
+
+    function getSchedules(num) {
         $('#tbody-box').empty();
+        let data = {'pageNum': num};
         $.ajax({
             type: 'GET',
-            url: '/scheduler',
+            url: '/scheduler/paging',
+            dataType: 'json',
+            data: data,
             success: function (response) {
                 for (let i = 0; i < response.length; i++) {
                     let schedules = response[i];
@@ -162,7 +221,9 @@
         })
     }
 
-    function search(){
+
+
+    function search(pageNum){
         let username = $('#targetUsername').val();
         let date = $('#datePicker').val();
         let param = `username=`+username+`&date=`+date;
@@ -173,7 +234,7 @@
         }
         $.ajax({
             type : 'GET',
-            url : '/scheduler/search',
+            url : '/scheduler/searchByLength',
             data : param,
             dataType : 'json',
             success : function(response){
@@ -181,18 +242,103 @@
                     alert("검색된 결과가 없습니다.");
                     return;
                 }
-                $('#tbody-box').empty();
-                for (let i = 0; i < response.length; i++) {
-                    let schedules = response[i];
-                    let schedule_id = schedules['schedule_id'];
-                    let username = schedules['username'];
-                    let title = schedules['title'];
-                    let modification_date = schedules['modification_date'];
-                    indexAndMyScheduleViewAddHTML(schedule_id, username, title, modification_date);
-                }
+                let data = {
+                    'pageNum' : pageNum,
+                    'total':response.length
+                };
+                $.ajax({
+                    type : 'GET',
+                    url : '/scheduler/page',
+                    dataType : 'json',
+                    data : data,
+                    success : function (response){
+                        $('#paginationUl').empty();
+                        let startPage = response.startPage;
+                        let pageNum = response.pageNum;
+                        let totalPages = response.totalPages;
+                        let endPage = response.endPage;
+                        let total = response.total;
+                        searchViewAddBtnHtml(startPage,pageNum,totalPages,endPage,total);
+                        let arr = `username=`+username+`&date=`+date+`&pageNum=`+pageNum;
+                    $.ajax({
+                        type : 'GET',
+                        url : '/scheduler/search',
+                        data : arr,
+                        dataType : 'json',
+                        success : function(response){
+                            $('#tbody-box').empty();
+                            for (let i = 0; i < response.length; i++) {
+                                let schedules = response[i];
+                                let schedule_id = schedules['schedule_id'];
+                                let username = schedules['username'];
+                                let title = schedules['title'];
+                                let modification_date = schedules['modification_date'];
+                                indexAndMyScheduleViewAddHTML(schedule_id, username, title, modification_date);
+                            }
+                        }
+                    });
+                    }
+                });
             },
             error : function (){
                 alert("안됨");
+            }
+        });
+    }
+
+    function searchViewAddBtnHtml(startPage,pageNum,totalPages,endPage,total){
+        let tempHtml = `
+        <li class="page-item" id="prevLi">
+            <a onclick="searchPrevBtn(${startPage},${pageNum})" class="page-link" aria-controls="dataTable" data-dt-idx="0" tabIndex="0">Prev</a>
+        </li>
+        <li class="page-item" id = "numBtn">
+        </li>
+        <li class="page-item">
+            <a class="page-link" onclick="searchNextBtn(${startPage},${totalPages},${endPage})"  aria-controls="dataTable" data-dt-idx="11" tabIndex="0">Next</a>
+        </li>
+        `;
+        $('#paginationUl').append(tempHtml);
+        for(let i = startPage; i <= endPage; i++){
+            let temp = `
+                <button value = ${i} onclick="searchOneBtn(${i})" th:if="${i} == ${pageNum}" 'active'>${i}</button>
+            `;
+            $('#numBtn').append(temp);
+        }
+    }
+
+    function searchPrevBtn(startPage,total){
+        if(startPage < 11) return;
+        serachGetPage(startPage-10,total);
+    }
+
+    function searchNextBtn(startPage,totalPages,endPage,total){
+        if(endPage >= totalPages) return;
+        serachGetPage(startPage + 10, total);
+    }
+
+    function searchOneBtn(pageNum,total){
+        serachGetPage(pageNum, total);
+    }
+
+
+    function  serachGetPage(num,total){
+        let pageNum = {
+            'pageNum': num,
+            'total' : total
+        };
+        $.ajax({
+            type : 'GET',
+            url : '/scheduler/page',
+            dataType : 'json',
+            data: pageNum,
+            success : function (response){
+                $('#paginationUl').empty();
+                let startPage = response.startPage;
+                let pageNum = response.pageNum;
+                let totalPages = response.totalPages;
+                let endPage = response.endPage;
+                searchViewAddBtnHtml(startPage,pageNum,totalPages,endPage);
+                search(pageNum);
             }
         });
     }

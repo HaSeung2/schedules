@@ -1,7 +1,6 @@
 package com.sparta.scheduler.repository;
 
 import com.sparta.scheduler.entity.scheduler.Scheduler;
-import com.sparta.scheduler.page.Page;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -93,7 +92,17 @@ public class SchedulerRepository {
         return schedule_id;
     }
 
-    public List<Scheduler> selectSearchModifyDate(String date) {
+    public List<Scheduler> selectSearchModifyDate(String date, int pageNum) {
+        String query = "select * from schedules where DATE_FORMAT(modification_date,'%Y-%m-%d') = ? order by modification_date desc limit ? , 10";
+        return jdbcTemplate.query(query,new RowMapper<Scheduler>(){
+            @Override
+            public Scheduler mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new Scheduler(rs);
+            }
+        },date,pageNum);
+    }
+
+    public List<Scheduler> selectSearchModifyDateLength(String date) {
         String query = "select * from schedules where DATE_FORMAT(modification_date,'%Y-%m-%d') = ? order by modification_date desc";
         return jdbcTemplate.query(query,new RowMapper<Scheduler>(){
             @Override
@@ -103,7 +112,18 @@ public class SchedulerRepository {
         },date);
     }
 
-    public List<Scheduler> selectSearchAuthor(String username) {
+
+    public List<Scheduler> selectSearchAuthor(String username, int pageNum) {
+        String query = "select * from schedules where username = ?  order by modification_date desc limit ? , 10";
+        return jdbcTemplate.query(query,new RowMapper<Scheduler>(){
+            @Override
+            public Scheduler mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new Scheduler(rs);
+            }
+        },username,pageNum);
+    }
+
+    public List<Scheduler> selectSearchAuthorLength(String username) {
         String query = "select * from schedules where username = ?  order by modification_date desc";
         return jdbcTemplate.query(query,new RowMapper<Scheduler>(){
             @Override
@@ -113,32 +133,52 @@ public class SchedulerRepository {
         },username);
     }
 
-    public List<Scheduler> selectSearchAll(String username, String date) {
-        String query = "select * from schedules where username = ? and DATE_FORMAT(modification_date,'%Y-%m-%d') = ? order by  modification_date desc";
+    public List<Scheduler> selectSearchAll(String username, String date, int pageNum) {
+        String query = "select * from schedules where username = ? and DATE_FORMAT(modification_date,'%Y-%m-%d') = ? order by  modification_date desc limit ?,?";
         return jdbcTemplate.query(query,new RowMapper<Scheduler>(){
             @Override
             public Scheduler mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return new Scheduler(rs);
             }
-        },username,date);
+        },username,date,pageNum,10);
+    }
+    public List<Scheduler> selectSearchAllLength(String username, String date) {
+        String query = "select * from schedules where username = ? and DATE_FORMAT(modification_date,'%Y-%m-%d') = ? order by  modification_date desc";
+        return jdbcTemplate.query(query, new RowMapper<Scheduler>() {
+            @Override
+            public Scheduler mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new Scheduler(rs);
+            }
+        }, username, date);
     }
 
-    public List<Scheduler> selectByMySchedule(Long user_id) {
-        String query = "select * from schedules where user_id = ?";
+
+    public List<Scheduler> selectAllByPaging(int pageNum) {
+        String query = "select * from schedules order by modification_date desc limit ?,? ";
+        return jdbcTemplate.query(query, new RowMapper<Scheduler>(){
+            public Scheduler mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new Scheduler(rs);
+            }
+        },pageNum,10);
+    }
+
+    public List<Scheduler> selectByMySchedule(Long user_id, int pageNum) {
+        String query = "select * from schedules where user_id = ? order by modification_date desc limit ?,10";
+        return jdbcTemplate.query(query, new RowMapper<Scheduler>(){
+            @Override
+            public Scheduler mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new Scheduler(rs);
+            }
+        }, user_id,pageNum);
+    }
+
+    public List<Scheduler> selectByMyScheduleCnt(Long user_id) {
+        String query = "select * from schedules where user_id = ? order by modification_date desc";
         return jdbcTemplate.query(query, new RowMapper<Scheduler>(){
             @Override
             public Scheduler mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return new Scheduler(rs);
             }
         }, user_id);
-    }
-
-    public List<Scheduler> selectAllByPaging(Page page) {
-        String query = "select * from schedules order by schedule_id desc limit ?,? ";
-        return jdbcTemplate.query(query, new RowMapper<Scheduler>(){
-            public Scheduler mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new Scheduler(rs);
-            }
-        },page.getPageNum(),page.getAmount());
     }
 }
